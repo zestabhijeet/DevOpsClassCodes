@@ -40,11 +40,11 @@ pipeline{
                }
            }	
           }
-           stage('Coverage'){
+            stage('Coverage'){
               
               steps{
                   echo 'generating coverage report'
-                  sh 'mvn jacoco:prepare-agent test jacoco:report'
+                  sh 'mvn org.jacoco:jacoco-maven-plugin:prepare-agent test org.jacoco:jacoco-maven-plugin:report'
               }
               
           }
