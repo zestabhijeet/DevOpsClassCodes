@@ -40,12 +40,22 @@ pipeline{
                }
            }	
           }
-           stage('MetricCheck'){
+           stage('Coverage'){
               
               steps{
-                  sh 'mvn cobertura:cobertura -Dcobertura.report.format=xml'
+                  echo 'generating coverage report'
+                  sh 'mvn jacoco:prepare-agent test jacoco:report'
               }
               
+          }
+          stage('SonarCloud Analysis'){
+ 
+              steps{
+                  echo 'running sonar analysis'
+                  withCredentials([string(credentialsId: 'sonarcloudtoken', variable: 'SONAR_TOKEN')]) {
+                      sh 'mvn sonar:sonar -Dsonar.organization=zestabhijeet -Dsonar.projectKey=REPLACE_WITH_PROJECT_KEY -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=$SONAR_TOKEN'
+                  }
+              }
           }
           stage('Package'){
 		  
@@ -58,3 +68,4 @@ pipeline{
           
       }
 }
+ 
