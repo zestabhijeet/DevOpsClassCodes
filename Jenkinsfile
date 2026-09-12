@@ -52,8 +52,8 @@ pipeline{
  
               steps{
                   echo 'running sonar analysis'
-                  withCredentials([string(credentialsId: 'sonarcloudtoken', variable: 'SONAR_TOKEN')]) {
-                      sh 'mvn sonar:sonar -Dsonar.organization=zestabhijeet -Dsonar.projectKey=REPLACE_WITH_PROJECT_KEY -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=$SONAR_TOKEN'
+                  withCredentials([string(credentialsId: 'jenkins-token', variable: 'SONAR_TOKEN')]) {
+                      sh 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.organization=zestabhijeet -Dsonar.projectKey=REPLACE_WITH_PROJECT_KEY -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=$SONAR_TOKEN'
                   }
               }
           }
