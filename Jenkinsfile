@@ -1,3 +1,4 @@
+/*function for sending mail*/
 def sendBuildEmail(String status) {
     emailext attachLog: true, attachmentsPattern: 'target/surefire-reports/*.xml',
         body: """$PROJECT_NAME - Build # $BUILD_NUMBER - ${status}:
