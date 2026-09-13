@@ -1,9 +1,9 @@
 /*function for sending mail*/
-def sendBuildEmail(String status) {
+def sendBuildEmail() {
     emailext attachLog: true, attachmentsPattern: 'target/surefire-reports/*.xml',
-        body: """$PROJECT_NAME - Build # $BUILD_NUMBER - ${status}:
-Check console output at $BUILD_URL to view the results.""",
-        compressLog: true, recipientProviders: [buildUser(), requestor()], subject: "$PROJECT_NAME - Build # $BUILD_NUMBER - ${status}!", to: 'zestabhijeet@gmail.com'
+        body: '''$PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS:
+Check console output at $BUILD_URL to view the results.''',
+        compressLog: true, recipientProviders: [buildUser(), requestor()], subject: '$PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS!', to: 'zestabhijeet@gmail.com'
 }
  
 pipeline{
