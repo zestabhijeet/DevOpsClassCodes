@@ -1,4 +1,10 @@
-
+def sendBuildEmail(String status) {
+    emailext attachLog: true, attachmentsPattern: 'target/surefire-reports/*.xml',
+        body: """$PROJECT_NAME - Build # $BUILD_NUMBER - ${status}:
+Check console output at $BUILD_URL to view the results.""",
+        compressLog: true, recipientProviders: [buildUser(), requestor()], subject: "$PROJECT_NAME - Build # $BUILD_NUMBER - ${status}!", to: 'zestabhijeet@gmail.com'
+}
+ 
 pipeline{
     tools{
         jdk 'myjava'
@@ -10,7 +16,7 @@ pipeline{
 	    
                steps{
 		 echo 'cloning..'
-                 git 'https://github.com/zestabhijeet/DevOpsClassCodes.git'
+                 git 'https://github.com/zestabhijeet/SonarQubeCoverageJava.git'
               }
           }
           stage('Compile'){
@@ -40,7 +46,7 @@ pipeline{
                }
            }	
           }
-            stage('Coverage'){
+           stage('Coverage'){
               
               steps{
                   echo 'generating coverage report'
@@ -53,7 +59,16 @@ pipeline{
               steps{
                   echo 'running sonar analysis'
                   withCredentials([string(credentialsId: 'jenkins-token', variable: 'SONAR_TOKEN')]) {
-                      sh 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.organization=zestabhijeet -Dsonar.projectKey=REPLACE_WITH_PROJECT_KEY -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=$SONAR_TOKEN'
+                      withSonarQubeEnv('SonarCloud') {
+                          sh 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.organization=zestabhijeet -Dsonar.projectKey=com.java:SonarQubeCoverageJava -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=$SONAR_TOKEN -Dsonar.sources=src/main/java -Dsonar.tests=src/test/java -Dsonar.java.binaries=target/classes -Dsonar.junit.reportPaths=target/surefire-reports'
+                      }
+                  }
+              }
+          }
+          stage('Quality Gate'){
+              steps{
+                  timeout(time: 5, unit: 'MINUTES') {
+                      waitForQualityGate abortPipeline: true
                   }
               }
           }
@@ -66,6 +81,14 @@ pipeline{
           }
 	     
           
+      }
+ 
+      post {
+          always {
+              script {
+                  sendBuildEmail(currentBuild.currentResult)
+              }
+          }
       }
 }
  
